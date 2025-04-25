@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Azure
 
 on:
   push:
@@ -8,7 +8,43 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy Bicep template
+      run: |
+        az deployment group create \
+          --resource-group my-resource-group \
+          --template-file infra/main.bicep \
+          --parameters @infra/parameters.json
+
+    - name: Deploy Data Factory pipelines
+      run: |
+        az datafactory pipeline create \
+          --factory-name DataValidationFactory \
+          --resource-group my-resource-group \
+          --name PipelineIngestao \
+          --pipeline-file infra/pipelines/ingestao.adf.json
+
+    - name: Deploy SQL Database
+      run: |
+        az sql server create \
+          --name datavalidation-sqlserver \
+          --resource-group my-resource-group \
+          --location eastus \
+          --admin-user adminUser \
+          --admin-password P@ssw0rd1234
+
+        az sql db create \
+          --resource-group my-resource-group \
+          --server datavalidation-sqlserver \
+          --name fictitiousdb \
+          --service-objective Basic
 
