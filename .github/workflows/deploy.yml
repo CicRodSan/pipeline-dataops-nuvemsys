@@ -49,41 +49,48 @@ jobs:
       run: |
         echo "Getting storage account key..."
         STORAGE_KEY=$(az storage account keys list --resource-group my-resource-group --account-name datavalidation456 --query "[0].value" -o tsv)
-        echo "::set-output name=key::$STORAGE_KEY"
+        # Use environment file for output
+        echo "key=$STORAGE_KEY" >> $GITHUB_OUTPUT
 
     - name: Deploy Azure Blob Storage Linked Service
       run: |
         echo "Deploying Azure Blob Storage Linked Service..."
-        linked_service_content=$(cat infra/pipelines/linkedservice_blobstorage.json)
-        # Replace placeholders
-        linked_service_content=${linked_service_content/<STORAGE_ACCOUNT_NAME>/datavalidation456}
-        linked_service_content=${linked_service_content/<STORAGE_ACCOUNT_KEY>/${{ steps.storage_key.outputs.key }}}
+        # Read the properties object directly from the JSON file using jq
+        # Ensure jq is installed or use alternative parsing if needed
+        # Assuming jq is available in the runner environment
+        properties_content=$(jq -c '.properties' infra/pipelines/linkedservice_blobstorage.json)
+
+        # Replace placeholders within the properties object
+        properties_content=${properties_content/<STORAGE_ACCOUNT_NAME>/datavalidation456}
+        properties_content=${properties_content/<STORAGE_ACCOUNT_KEY>/${{ steps.storage_key.outputs.key }}}
 
         az datafactory linked-service create \
           --factory-name DataValidationFactoryUnique \
           --resource-group my-resource-group \
           --linked-service-name AzureBlobStorageLinkedService \
-          --properties "$linked_service_content"
+          --properties "$properties_content" # Pass only the properties object
 
     - name: Deploy FonteDados Dataset
       run: |
         echo "Deploying FonteDados Dataset..."
-        dataset_content=$(cat infra/pipelines/dataset_fontedados.json)
+        # Extract properties object for dataset
+        properties_content=$(jq -c '.properties' infra/pipelines/dataset_fontedados.json)
         az datafactory dataset create \
           --factory-name DataValidationFactoryUnique \
           --resource-group my-resource-group \
           --dataset-name FonteDados \
-          --properties "$dataset_content"
+          --properties "$properties_content" # Pass only the properties object
 
     - name: Deploy DestinoDados Dataset
       run: |
         echo "Deploying DestinoDados Dataset..."
-        dataset_content=$(cat infra/pipelines/dataset_destinodados.json)
+        # Extract properties object for dataset
+        properties_content=$(jq -c '.properties' infra/pipelines/dataset_destinodados.json)
         az datafactory dataset create \
           --factory-name DataValidationFactoryUnique \
           --resource-group my-resource-group \
           --dataset-name DestinoDados \
-          --properties "$dataset_content"
+          --properties "$properties_content" # Pass only the properties object
     
     # End of new steps
 
@@ -98,13 +105,14 @@ jobs:
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
-        pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
+        # Extract properties object for pipeline
+        properties_content=$(jq -c '.properties' infra/pipelines/ingestao.adf.json)
         # Use single backslash for line continuation
         az datafactory pipeline create \
           --factory-name DataValidationFactoryUnique \
           --resource-group my-resource-group \
           --name PipelineIngestao \
-          --pipeline "$pipeline_content"
+          --properties "$properties_content" # Pass only the properties object
 
     - name: Register Resource Provider
       run: |
