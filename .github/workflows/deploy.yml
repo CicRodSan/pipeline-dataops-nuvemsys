@@ -38,6 +38,13 @@ jobs:
         echo "Installing Azure CLI Data Factory extension..."
         az extension add --name datafactory --yes
 
+    - name: Validate Data Factory Creation
+      run: |
+        echo "Validating Azure Data Factory creation..."
+        az datafactory show \
+          --name DataValidationFactory \
+          --resource-group my-resource-group
+
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
