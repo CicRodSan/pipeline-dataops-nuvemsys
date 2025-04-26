@@ -41,11 +41,12 @@ jobs:
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
+        pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
         az datafactory pipeline create \
           --factory-name DataValidationFactory \
           --resource-group my-resource-group \
           --name PipelineIngestao \
-          --pipeline-file infra/pipelines/ingestao.adf.json
+          --pipeline "$pipeline_content"
 
     - name: Deploy SQL Database
       run: |
