@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "value": "datavalidationstorage"
+    },
+    "dataFactoryName": {
+      "value": "DataValidationFactory"
+    },
+    "sqlServerName": {
+      "value": "datavalidation-sqlserver"
+    },
+    "sqlDatabaseName": {
+      "value": "fictitiousdb"
+    },
+    "adminLogin": {
+      "value": "adminUser"
+    },
+    "adminPassword": {
+      "value": "P@ssw0rd1234"
+    }
+  }
+}
