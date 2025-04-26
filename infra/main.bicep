@@ -1,6 +1,12 @@
-// Corrigindo problemas no arquivo Bicep
+param storageAccountName string
+param dataFactoryName string
+param sqlServerName string
+param sqlDatabaseName string
+param adminLogin string
+param adminPassword string
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
-  name: 'datavalidationstorage'
+  name: storageAccountName
   location: resourceGroup().location
   sku: {
     name: 'Standard_LRS'
@@ -9,7 +15,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 }
 
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
-  name: 'DataValidationFactory'
+  name: dataFactoryName
   location: resourceGroup().location
   properties: {}
 }
@@ -23,16 +29,16 @@ resource monitor 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
-  name: 'datavalidation-sqlserver'
+  name: sqlServerName
   location: resourceGroup().location
   properties: {
-    administratorLogin: 'adminUser'
-    administratorLoginPassword: 'P@ssw0rd1234'
+    administratorLogin: adminLogin
+    administratorLoginPassword: adminPassword
   }
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
-  name: 'fictitiousdb'
+  name: sqlDatabaseName
   parent: sqlServer
   location: resourceGroup().location
   properties: {
