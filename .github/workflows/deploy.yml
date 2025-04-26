@@ -86,3 +86,10 @@ jobs:
         echo "Validating registration of microsoft.operationalinsights..."
         az provider show --namespace microsoft.operationalinsights --query "registrationState"
 
+    - name: Diagnose Bicep Deployment
+      run: |
+        echo "Diagnosing Bicep deployment..."
+        az deployment group show \
+          --resource-group my-resource-group \
+          --name main
+
