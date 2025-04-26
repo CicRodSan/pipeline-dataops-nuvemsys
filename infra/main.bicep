@@ -1,4 +1,4 @@
-// Criação de recursos básicos no Azure
+// Corrigindo problemas no arquivo Bicep
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: 'datavalidationstorage'
   location: resourceGroup().location
@@ -22,7 +22,6 @@ resource monitor 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-// Adicionando um banco de dados fictício no Azure SQL Database
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: 'datavalidation-sqlserver'
   location: resourceGroup().location
@@ -30,16 +29,12 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
     administratorLogin: 'adminUser'
     administratorLoginPassword: 'P@ssw0rd1234'
   }
-  sku: {
-    name: 'Basic'
-    tier: 'Basic'
-    capacity: 5
-  }
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   name: 'fictitiousdb'
   parent: sqlServer
+  location: resourceGroup().location
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'
     maxSizeBytes: 2147483648 // 2 GB
