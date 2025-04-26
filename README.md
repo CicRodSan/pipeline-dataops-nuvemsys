@@ -1,4 +1,2 @@
-
-
 # Atualização
-Pequena alteração para disparar o workflow do GitHub Actions.
+Forçando o disparo do workflow do GitHub Actions.
