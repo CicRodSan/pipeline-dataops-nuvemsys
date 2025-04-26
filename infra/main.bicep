@@ -27,6 +27,8 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
 resource monitor 'Microsoft.Insights/components@2020-02-02' = {
   name: 'DataValidationMonitor'
   location: resourceGroup().location
+  // Add the required 'kind' property
+  kind: 'web'
   properties: {
     Application_Type: 'web'
   }
