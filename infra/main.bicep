@@ -19,7 +19,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   location: resourceGroup().location
-  properties: {}
+  properties: {
+    publicNetworkAccess: 'Enabled'
+  }
 }
 
 resource monitor 'Microsoft.Insights/components@2020-02-02' = {

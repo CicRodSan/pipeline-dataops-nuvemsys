@@ -6,7 +6,7 @@
       "value": "datavalidation456"
     },
     "dataFactoryName": {
-      "value": "DataValidationFactory"
+      "value": "DataValidationFactoryUnique"
     },
     "sqlServerName": {
       "value": "datavalidation-sqlserver12345"
