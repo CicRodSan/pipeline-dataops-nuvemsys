@@ -1,9 +1,11 @@
+@secure()
+param adminPassword string
+
 param storageAccountName string
 param dataFactoryName string
 param sqlServerName string
 param sqlDatabaseName string
 param adminLogin string
-param adminPassword string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: storageAccountName
@@ -30,7 +32,7 @@ resource monitor 'Microsoft.Insights/components@2020-02-02' = {
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: sqlServerName
-  location: resourceGroup().location
+  location: 'West US'
   properties: {
     administratorLogin: adminLogin
     administratorLoginPassword: adminPassword
@@ -40,7 +42,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   name: sqlDatabaseName
   parent: sqlServer
-  location: resourceGroup().location
+  location: 'West US'
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'
     maxSizeBytes: 2147483648 // 2 GB

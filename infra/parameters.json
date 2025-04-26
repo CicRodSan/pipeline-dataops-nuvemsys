@@ -3,16 +3,16 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
-      "value": "datavalidationstorage"
+      "value": "datavalidationstorage12345"
     },
     "dataFactoryName": {
-      "value": "DataValidationFactory"
+      "value": "DataValidationFactory12345"
     },
     "sqlServerName": {
-      "value": "datavalidation-sqlserver"
+      "value": "datavalidation-sqlserver12345"
     },
     "sqlDatabaseName": {
-      "value": "fictitiousdb"
+      "value": "fictitiousdb12345"
     },
     "adminLogin": {
       "value": "adminUser"
