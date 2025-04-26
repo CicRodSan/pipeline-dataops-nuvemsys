@@ -33,6 +33,11 @@ jobs:
           --template-file infra/main.bicep \
           --parameters @infra/parameters.json
 
+    - name: Install Azure CLI Data Factory Extension
+      run: |
+        echo "Installing Azure CLI Data Factory extension..."
+        az extension add --name datafactory --yes
+
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
