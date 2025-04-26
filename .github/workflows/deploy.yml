@@ -105,14 +105,14 @@ jobs:
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
-        # Extract properties object for pipeline
-        properties_content=$(jq -c '.properties' infra/pipelines/ingestao.adf.json)
+        # Read the full pipeline content
+        pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
         # Use single backslash for line continuation
         az datafactory pipeline create \
           --factory-name DataValidationFactoryUnique \
           --resource-group my-resource-group \
           --name PipelineIngestao \
-          --properties "$properties_content" # Pass only the properties object
+          --pipeline "$pipeline_content" # Pass the full pipeline definition
 
     - name: Register Resource Provider
       run: |
