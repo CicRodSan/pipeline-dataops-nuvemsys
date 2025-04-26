@@ -46,18 +46,20 @@ jobs:
     - name: Validate Data Factory Creation
       run: |
         echo "Validating Azure Data Factory creation..."
-        az datafactory show \\
-          --name DataValidationFactoryUnique \\ # Corrected name
+        # Use single backslash for line continuation
+        az datafactory show \
+          --name DataValidationFactoryUnique \
           --resource-group my-resource-group
 
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
         pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
-        az datafactory pipeline create \\
-          --factory-name DataValidationFactoryUnique \\ # Corrected name
-          --resource-group my-resource-group \\
-          --name PipelineIngestao \\
+        # Use single backslash for line continuation
+        az datafactory pipeline create \
+          --factory-name DataValidationFactoryUnique \
+          --resource-group my-resource-group \
+          --name PipelineIngestao \
           --pipeline "$pipeline_content"
 
     - name: Register Resource Provider
