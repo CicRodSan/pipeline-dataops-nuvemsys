@@ -18,6 +18,13 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Create Resource Group
+      run: |
+        echo "Creating resource group..."
+        az group create \
+          --name my-resource-group \
+          --location eastus
+
     - name: Deploy Bicep template
       run: |
         echo "Deploying Bicep template..."
