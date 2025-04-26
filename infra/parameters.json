@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
-      "value": "datavalidationstorage12345"
+      "value": "datavalidation123"
     },
     "dataFactoryName": {
       "value": "DataValidationFactory12345"
