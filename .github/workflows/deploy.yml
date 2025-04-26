@@ -58,3 +58,13 @@ jobs:
           --name fictitiousdb \
           --service-objective Basic
 
+    - name: Register Resource Provider
+      run: |
+        echo "Registering microsoft.operationalinsights..."
+        az provider register --namespace microsoft.operationalinsights
+
+    - name: Validate Resource Provider Registration
+      run: |
+        echo "Validating registration of microsoft.operationalinsights..."
+        az provider show --namespace microsoft.operationalinsights --query "registrationState"
+
