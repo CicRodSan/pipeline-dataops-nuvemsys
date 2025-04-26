@@ -43,6 +43,50 @@ jobs:
         echo "Installing Azure CLI Data Factory extension..."
         az extension add --name datafactory --yes
 
+    # Steps to deploy Linked Service and Datasets
+    - name: Get Storage Account Key
+      id: storage_key
+      run: |
+        echo "Getting storage account key..."
+        STORAGE_KEY=$(az storage account keys list --resource-group my-resource-group --account-name datavalidation456 --query "[0].value" -o tsv)
+        echo "::set-output name=key::$STORAGE_KEY"
+
+    - name: Deploy Azure Blob Storage Linked Service
+      run: |
+        echo "Deploying Azure Blob Storage Linked Service..."
+        linked_service_content=$(cat infra/pipelines/linkedservice_blobstorage.json)
+        # Replace placeholders
+        linked_service_content=${linked_service_content/<STORAGE_ACCOUNT_NAME>/datavalidation456}
+        linked_service_content=${linked_service_content/<STORAGE_ACCOUNT_KEY>/${{ steps.storage_key.outputs.key }}}
+
+        az datafactory linked-service create \
+          --factory-name DataValidationFactoryUnique \
+          --resource-group my-resource-group \
+          --linked-service-name AzureBlobStorageLinkedService \
+          --properties "$linked_service_content"
+
+    - name: Deploy FonteDados Dataset
+      run: |
+        echo "Deploying FonteDados Dataset..."
+        dataset_content=$(cat infra/pipelines/dataset_fontedados.json)
+        az datafactory dataset create \
+          --factory-name DataValidationFactoryUnique \
+          --resource-group my-resource-group \
+          --dataset-name FonteDados \
+          --properties "$dataset_content"
+
+    - name: Deploy DestinoDados Dataset
+      run: |
+        echo "Deploying DestinoDados Dataset..."
+        dataset_content=$(cat infra/pipelines/dataset_destinodados.json)
+        az datafactory dataset create \
+          --factory-name DataValidationFactoryUnique \
+          --resource-group my-resource-group \
+          --dataset-name DestinoDados \
+          --properties "$dataset_content"
+    
+    # End of new steps
+
     - name: Validate Data Factory Creation
       run: |
         echo "Validating Azure Data Factory creation..."

@@ -1,0 +1,17 @@
+{
+  "name": "FonteDados",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "AzureBlobStorageLinkedService",
+      "type": "LinkedServiceReference"
+    },
+    "annotations": [],
+    "type": "Binary",
+    "typeProperties": {
+      "location": {
+        "type": "AzureBlobStorageLocation",
+        "container": "input" 
+      }
+    }
+  }
+}
