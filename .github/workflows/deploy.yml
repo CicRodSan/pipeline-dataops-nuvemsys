@@ -46,35 +46,19 @@ jobs:
     - name: Validate Data Factory Creation
       run: |
         echo "Validating Azure Data Factory creation..."
-        az datafactory show \
-          --name DataValidationFactory \
+        az datafactory show \\
+          --name DataValidationFactoryUnique \\ # Corrected name
           --resource-group my-resource-group
 
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
         pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
-        az datafactory pipeline create \
-          --factory-name DataValidationFactory \
-          --resource-group my-resource-group \
-          --name PipelineIngestao \
+        az datafactory pipeline create \\
+          --factory-name DataValidationFactoryUnique \\ # Corrected name
+          --resource-group my-resource-group \\
+          --name PipelineIngestao \\
           --pipeline "$pipeline_content"
-
-    - name: Deploy SQL Database
-      run: |
-        echo "Deploying SQL Server and Database..."
-        az sql server create \
-          --name datavalidation-sqlserver \
-          --resource-group my-resource-group \
-          --location eastus \
-          --admin-user adminUser \
-          --admin-password P@ssw0rd1234
-
-        az sql db create \
-          --resource-group my-resource-group \
-          --server datavalidation-sqlserver \
-          --name fictitiousdb \
-          --service-objective Basic
 
     - name: Register Resource Provider
       run: |
@@ -101,10 +85,10 @@ jobs:
     - name: Validate Storage Account
       run: |
         echo "Validating Storage Account creation..."
-        az storage account show --name datavalidation456 --resource-group my-resource-group
+        az storage account show --name datavalidation456 --resource-group my-resource-group # Name matches parameters.json
 
     - name: Validate SQL Server
       run: |
         echo "Validating SQL Server creation..."
-        az sql server show --name datavalidation-sqlserver12345 --resource-group my-resource-group
+        az sql server show --name datavalidation-sqlserver12345 --resource-group my-resource-group # Corrected name
 
