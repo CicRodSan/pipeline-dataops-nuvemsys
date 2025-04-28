@@ -55,31 +55,18 @@ jobs:
     - name: Deploy Azure Blob Storage Linked Service
       run: |
         echo "Deploying Azure Blob Storage Linked Service..."
-        # Read the properties object directly from the JSON file using jq
-        # Ensure jq is installed or use alternative parsing if needed
-        # Assuming jq is available in the runner environment
         properties_content=$(jq -c '.properties' infra/pipelines/linkedservice_blobstorage.json)
-
-        # Replace placeholders within the properties object
         properties_content=${properties_content/<STORAGE_ACCOUNT_NAME>/datavalidation456}
         properties_content=${properties_content/<STORAGE_ACCOUNT_KEY>/${{ steps.storage_key.outputs.key }}}
-
-        az datafactory linked-service create \
-          --factory-name DataValidationFactoryUnique \
-          --resource-group my-resource-group \
-          --linked-service-name AzureBlobStorageLinkedService \
-          --properties "$properties_content" # Pass only the properties object
+        # Use --name instead of --linked-service-name and remove line continuations
+        az datafactory linked-service create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name AzureBlobStorageLinkedService --properties "$properties_content"
 
     - name: Deploy FonteDados Dataset
       run: |
         echo "Deploying FonteDados Dataset..."
-        # Extract properties object for dataset
         properties_content=$(jq -c '.properties' infra/pipelines/dataset_fontedados.json)
-        az datafactory dataset create \
-          --factory-name DataValidationFactoryUnique \
-          --resource-group my-resource-group \
-          --dataset-name FonteDados \
-          --properties "$properties_content" # Pass only the properties object
+        # Use --name instead of --dataset-name and remove line continuations
+        az datafactory dataset create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name FonteDados --properties "$properties_content"
 
     - name: Deploy DestinoDados Dataset
       run: |
@@ -93,21 +80,15 @@ jobs:
       run: |
         echo "Deploying NOAA ISD Linked Service..."
         properties_content=$(jq -c '.properties' infra/pipelines/linkedservice_noaa_isd.json)
-        az datafactory linked-service create \\
-          --factory-name DataValidationFactoryUnique \\
-          --resource-group my-resource-group \\
-          --linked-service-name AzureBlobStorageNOAAISD \\
-          --properties "$properties_content"
+        # Use --name instead of --linked-service-name and remove line continuations
+        az datafactory linked-service create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name AzureBlobStorageNOAAISD --properties "$properties_content"
 
     - name: Deploy NOAA ISD Source Dataset
       run: |
         echo "Deploying NOAA ISD Source Dataset..."
         properties_content=$(jq -c '.properties' infra/pipelines/dataset_noaa_isd.json)
-        az datafactory dataset create \\
-          --factory-name DataValidationFactoryUnique \\
-          --resource-group my-resource-group \\
-          --dataset-name NOAAISDSource \\
-          --properties "$properties_content"
+        # Use --name instead of --dataset-name and remove line continuations
+        az datafactory dataset create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name NOAAISDSource --properties "$properties_content"
     # --- Fim dos novos passos ---
 
     # End of new steps
@@ -115,7 +96,6 @@ jobs:
     - name: Validate Data Factory Creation
       run: |
         echo "Validating Azure Data Factory creation..."
-        # Use single backslash for line continuation
         az datafactory show \
           --name DataValidationFactoryUnique \
           --resource-group my-resource-group
@@ -123,14 +103,9 @@ jobs:
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
-        # Read the full pipeline content
         pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
-        # Use single backslash for line continuation
-        az datafactory pipeline create \
-          --factory-name DataValidationFactoryUnique \
-          --resource-group my-resource-group \
-          --name PipelineIngestao \
-          --pipeline "$pipeline_content" # Pass the full pipeline definition
+        # Remove line continuations
+        az datafactory pipeline create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name PipelineIngestao --pipeline "$pipeline_content"
 
     - name: Register Resource Provider
       run: |
