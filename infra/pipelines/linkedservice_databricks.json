@@ -7,7 +7,7 @@
       "existingClusterId": "0428-211745-7lfmuhu5",
       "accessToken": {
         "type": "SecureString",
-        "value": "dapi091cd2769da269cededf431555b3c4cf-3"
+        "value": "{{DATABRICKS_TOKEN}}"
       }
     },
     "annotations": []
