@@ -89,6 +89,14 @@ jobs:
         properties_content=$(jq -c '.properties' infra/pipelines/dataset_noaa_isd.json)
         # Use --name instead of --dataset-name and remove line continuations
         az datafactory dataset create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name NOAAISDSource --properties "$properties_content"
+    
+    # Adicionar linked service do Databricks
+    - name: Deploy Databricks Linked Service
+      run: |
+        echo "Deploying Databricks Linked Service..."
+        properties_content=$(jq -c '.properties' infra/pipelines/linkedservice_databricks.json)
+        # Use --name instead of --linked-service-name
+        az datafactory linked-service create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name AzureDatabricks_LinkedService --properties "$properties_content"
     # --- Fim dos novos passos ---
 
     # End of new steps
@@ -103,9 +111,20 @@ jobs:
     - name: Deploy Data Factory pipelines
       run: |
         echo "Deploying Data Factory pipelines..."
+        # Pipeline de ingestão
+        echo "Deploying ingestion pipeline..."
         pipeline_content=$(cat infra/pipelines/ingestao.adf.json)
-        # Remove line continuations
         az datafactory pipeline create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name PipelineIngestao --pipeline "$pipeline_content"
+        
+        # Pipeline de transformação
+        echo "Deploying transformation pipeline..."
+        pipeline_content=$(cat infra/pipelines/transformacao.json)
+        az datafactory pipeline create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name Pipeline_Transformacao_Databricks --pipeline "$pipeline_content"
+        
+        # Pipeline de monitoramento
+        echo "Deploying monitoring pipeline..."
+        pipeline_content=$(cat infra/pipelines/monitoramento.json)
+        az datafactory pipeline create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name MonitorarPipelines --pipeline "$pipeline_content"
 
     - name: Register Resource Provider
       run: |
