@@ -1,47 +1,33 @@
-\
 {
-    "name": "Pipeline_Transformacao_Databricks",
-    "properties": {
-        "activities": [
-            {
-                "name": "ExecutarNotebookTransformacao",
-                "type": "DatabricksNotebook",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "userProperties": [],
-                "typeProperties": {
-                    "notebookPath": "/notebooks/transformacao_dados", // Caminho do notebook no workspace Databricks
-                    "baseParameters": {
-                        // "param_storage_account": {
-                        //     "value": "@pipeline().parameters.storageAccountName", // Exemplo de passagem de parâmetro
-                        //     "type": "Expression"
-                        // },
-                        // "param_input_container": {
-                        //     "value": "output", // Ou passar via parâmetro
-                        //     "type": "Expression"
-                        // }
-                    }
-                },
-                "linkedServiceName": {
-                    "referenceName": "AzureDatabricks_LinkedService", // Nome do Linked Service criado
-                    "type": "LinkedServiceReference"
-                }
-            }
-        ],
-        "parameters": {
-            // "storageAccountName": {
-            //     "type": "String"
-            // }
+  "name": "Pipeline_Transformacao_Databricks",
+  "properties": {
+    "activities": [
+      {
+        "name": "ExecutarNotebookTransformacao",
+        "type": "DatabricksNotebook",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
         },
-        "annotations": [],
-        "folder": {
-            "name": "Transformacao"
+        "userProperties": [],
+        "typeProperties": {
+          "notebookPath": "/notebooks/transformacao_dados",
+          "baseParameters": {}
+        },
+        "linkedServiceName": {
+          "referenceName": "AzureDatabricks_LinkedService",
+          "type": "LinkedServiceReference"
         }
+      }
+    ],
+    "parameters": {},
+    "annotations": [],
+    "folder": {
+      "name": "Transformacao"
     }
+  }
 }

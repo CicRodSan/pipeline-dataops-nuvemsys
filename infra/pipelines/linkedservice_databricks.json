@@ -1,25 +1,19 @@
-
 {
-    "name": "AzureDatabricks_LinkedService",
-    "properties": {
-        "type": "AzureDatabricks",
-        "typeProperties": {
-            "domain": "https://adb-964050183573530.10.azuredatabricks.net", // Atualizado com o URL do seu workspace
-            "existingClusterId": "<your-cluster-id>", // Substitua pelo ID do seu cluster Databricks
-            "accessToken": {
-                "type": "AzureKeyVaultSecret", // Recomendado usar Key Vault
-                "store": {
-                    "referenceName": "AzureKeyVault_LinkedService", // Substitua pelo nome do seu Linked Service do Key Vault
-                    "type": "LinkedServiceReference"
-                },
-                "secretName": "<databricks-access-token-secret-name>" // Nome do segredo no Key Vault
-            }
-            // Alternativamente, para teste rápido (não recomendado para produção):
-            // "accessToken": {
-            //     "type": "SecureString",
-            //     "value": "<your-databricks-access-token>" // Cole seu token de acesso aqui diretamente
-            // }
+  "name": "AzureDatabricks_LinkedService",
+  "properties": {
+    "type": "AzureDatabricks",
+    "typeProperties": {
+      "domain": "https://adb-964050183573530.10.azuredatabricks.net",
+      "existingClusterId": "<SEU_CLUSTER_ID>",
+      "accessToken": {
+        "type": "AzureKeyVaultSecret",
+        "store": {
+          "referenceName": "AzureKeyVault_LinkedService",
+          "type": "LinkedServiceReference"
         },
-        "annotations": []
-    }
+        "secretName": "<NOME_DO_SEGREDO_TOKEN>"
+      }
+    },
+    "annotations": []
+  }
 }
