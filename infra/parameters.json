@@ -15,20 +15,10 @@
       "value": "weatherdb12345"
     },
     "adminLogin": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.KeyVault/vaults/datavalidation-kv"
-        },
-        "secretName": "sql-admin-username"
-      }
+      "value": "adminuser"
     },
     "adminPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.KeyVault/vaults/datavalidation-kv"
-        },
-        "secretName": "sql-admin-password"
-      }
+      "value": "P@ssw0rd1234!Secure"
     },
     "keyVaultName": {
       "value": "datavalidation-kv"

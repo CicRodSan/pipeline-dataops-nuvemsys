@@ -121,7 +121,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 // SQL Server com TLS habilitado
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: sqlServerName
-  location: location
+  location: 'westus'  // Forçando a usar 'westus' para corresponder ao servidor existente
   properties: {
     administratorLogin: adminLogin
     administratorLoginPassword: adminPassword
@@ -133,7 +133,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
   name: sqlDatabaseName
   parent: sqlServer
-  location: location
+  location: 'westus'  // Forçando a usar 'westus' para corresponder ao servidor existente
   sku: {
     name: 'Basic'
     tier: 'Basic'
