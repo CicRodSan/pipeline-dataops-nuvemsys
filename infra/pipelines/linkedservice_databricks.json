@@ -4,14 +4,10 @@
     "type": "AzureDatabricks",
     "typeProperties": {
       "domain": "https://adb-964050183573530.10.azuredatabricks.net",
-      "existingClusterId": "<SEU_CLUSTER_ID>",
+      "existingClusterId": "0428-211745-7lfmuhu5",
       "accessToken": {
-        "type": "AzureKeyVaultSecret",
-        "store": {
-          "referenceName": "AzureKeyVault_LinkedService",
-          "type": "LinkedServiceReference"
-        },
-        "secretName": "<NOME_DO_SEGREDO_TOKEN>"
+        "type": "SecureString",
+        "value": "dapi091cd2769da269cededf431555b3c4cf-3"
       }
     },
     "annotations": []

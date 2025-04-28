@@ -15,8 +15,17 @@
         },
         "userProperties": [],
         "typeProperties": {
-          "notebookPath": "/notebooks/transformacao_dados",
-          "baseParameters": {}
+          "notebookPath": "/Workspace/Users/cicero-1994@hotmail.com/pipeline-dataops-nuvemsys/notebooks/transformacao_dados",
+          "baseParameters": {
+            "storageAccountName": {
+              "value": "@pipeline().parameters.storageAccountName",
+              "type": "Expression"
+            },
+            "containerName": {
+              "value": "@pipeline().parameters.containerName",
+              "type": "Expression"
+            }
+          }
         },
         "linkedServiceName": {
           "referenceName": "AzureDatabricks_LinkedService",
@@ -24,7 +33,16 @@
         }
       }
     ],
-    "parameters": {},
+    "parameters": {
+      "storageAccountName": {
+        "type": "string",
+        "defaultValue": "datavalidation456"
+      },
+      "containerName": {
+        "type": "string",
+        "defaultValue": "output"
+      }
+    },
     "annotations": [],
     "folder": {
       "name": "Transformacao"
