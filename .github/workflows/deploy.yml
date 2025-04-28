@@ -84,13 +84,9 @@ jobs:
     - name: Deploy DestinoDados Dataset
       run: |
         echo "Deploying DestinoDados Dataset..."
-        # Extract properties object for dataset
         properties_content=$(jq -c '.properties' infra/pipelines/dataset_destinodados.json)
-        az datafactory dataset create \\
-          --factory-name DataValidationFactoryUnique \\
-          --resource-group my-resource-group \\
-          --dataset-name DestinoDados \\
-          --properties "$properties_content" # Pass only the properties object
+        # Use --name instead of --dataset-name and remove line continuations
+        az datafactory dataset create --factory-name DataValidationFactoryUnique --resource-group my-resource-group --name DestinoDados --properties "$properties_content"
 
     # --- Adicionar novos passos aqui ---
     - name: Deploy NOAA ISD Linked Service
