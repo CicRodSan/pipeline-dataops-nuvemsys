@@ -1,0 +1,149 @@
+{
+  "name": "MonitorarPipelines",
+  "properties": {
+    "description": "Pipeline responsável pelo monitoramento da execução dos processos de ingestão e transformação",
+    "activities": [
+      {
+        "name": "VerificarStatusPipelines",
+        "type": "WebActivity",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "7.00:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "method": "GET",
+          "url": {
+            "value": "@concat('https://management.azure.com/subscriptions/', pipeline().globalParameters.SubscriptionId, '/resourceGroups/', pipeline().globalParameters.ResourceGroupName, '/providers/Microsoft.DataFactory/factories/', pipeline().DataFactory, '/pipelineruns?api-version=2018-06-01')",
+            "type": "Expression"
+          },
+          "authentication": {
+            "type": "MSI",
+            "resource": "https://management.azure.com/"
+          }
+        }
+      },
+      {
+        "name": "AnalisarResultados",
+        "type": "SetVariable",
+        "dependsOn": [
+          {
+            "activity": "VerificarStatusPipelines",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "variableName": "StatusExecucoes",
+          "value": {
+            "value": "@activity('VerificarStatusPipelines').output.value",
+            "type": "Expression"
+          }
+        }
+      },
+      {
+        "name": "LogarInformacoes",
+        "type": "WebActivity",
+        "dependsOn": [
+          {
+            "activity": "AnalisarResultados",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "7.00:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "method": "POST",
+          "url": {
+            "value": "@pipeline().globalParameters.ApplicationInsightsEndpoint",
+            "type": "Expression"
+          },
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "value": "@concat('{\"name\":\"PipelineExecucao\", \"time\":\"', utcnow(), '\", \"iKey\":\"', pipeline().globalParameters.ApplicationInsightsKey, '\", \"tags\":{\"ai.operation.name\":\"Monitoramento\"}, \"data\":{\"baseType\":\"MetricData\", \"baseData\":{\"metrics\":[{\"name\":\"Execucoes\", \"value\":', length(variables('StatusExecucoes')), '}]}}}')",
+            "type": "Expression"
+          }
+        }
+      },
+      {
+        "name": "VerificarFalhas",
+        "type": "Filter",
+        "dependsOn": [
+          {
+            "activity": "AnalisarResultados",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "items": {
+            "value": "@variables('StatusExecucoes')",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@equals(item().status, 'Failed')",
+            "type": "Expression"
+          }
+        }
+      },
+      {
+        "name": "EnviarAlerta",
+        "type": "WebHook",
+        "dependsOn": [
+          {
+            "activity": "VerificarFalhas",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "7.00:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "url": {
+            "value": "@pipeline().globalParameters.AlertWebhookUrl",
+            "type": "Expression"
+          },
+          "method": "POST",
+          "body": {
+            "value": "@concat('{\"text\":\"ALERTA: ', length(activity('VerificarFalhas').output.value), ' pipelines falharam na última execução. Verifique imediatamente.\"}')",
+            "type": "Expression"
+          }
+        }
+      }
+    ],
+    "variables": {
+      "StatusExecucoes": {
+        "type": "Array"
+      }
+    },
+    "annotations": [],
+    "folder": {
+      "name": "Monitoramento"
+    },
+    "lastPublishTime": "2024-04-28T00:00:00Z"
+  }
+}

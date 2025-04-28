@@ -12,13 +12,29 @@
       "value": "datavalidation-sqlserver12345"
     },
     "sqlDatabaseName": {
-      "value": "fictitiousdb12345"
+      "value": "weatherdb12345"
     },
     "adminLogin": {
-      "value": "adminUser"
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.KeyVault/vaults/datavalidation-kv"
+        },
+        "secretName": "sql-admin-username"
+      }
     },
     "adminPassword": {
-      "value": "P@ssw0rd1234"
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.KeyVault/vaults/datavalidation-kv"
+        },
+        "secretName": "sql-admin-password"
+      }
+    },
+    "keyVaultName": {
+      "value": "datavalidation-kv"
+    },
+    "applicationInsightsName": {
+      "value": "DataValidationMonitor"
     }
   }
 }

@@ -1,0 +1,114 @@
+#+TITLE: Documentação do Processo DataOps - NOAA ISD
+#+AUTHOR: Equipe NuvemSys
+#+DATE: 2024-04-28
+
+* Visão Geral do Pipeline de Dados
+Este documento registra as decisões técnicas, processo de desenvolvimento e manutenção do pipeline de dados para processamento dos dados meteorológicos do NOAA ISD.
+
+* Arquitetura
+** Componentes Principais
+- *Fonte de dados*: Azure Open Datasets (NOAA ISD) contendo dados meteorológicos globais
+- *Ingestão*: Azure Data Factory para extrair dados da fonte e armazenar no Blob Storage
+- *Processamento*: Azure Databricks para transformação dos dados usando PySpark
+- *Armazenamento*: Azure Blob Storage para armazenamento intermediário e final
+- *Monitoramento*: Application Insights para métricas de execução e saúde do pipeline
+- *Segurança*: Azure Key Vault para gerenciamento de segredos e credenciais
+- *CI/CD*: GitHub Actions para implantação automatizada
+- *Validação*: Testes automatizados com PyTest
+
+** Decisões Arquiteturais
+*** Por que Azure Open Datasets?
+- Acesso simplificado aos dados NOAA ISD sem necessidade de gerenciar downloads
+- Dados já em formato Parquet, otimizado para processamento em Spark
+- Autenticação anônima facilita a integração
+
+*** Por que Databricks?
+- Processamento distribuído eficiente para grandes volumes de dados
+- Suporte nativo ao PySpark para transformações complexas
+- Notebooks interativos facilitam desenvolvimento e depuração
+- Integração com Azure Data Factory para orquestração
+
+*** Por que adotar IaC com Bicep?
+- Reprodutibilidade do ambiente
+- Versionamento da infraestrutura junto ao código
+- Facilita CI/CD para deploy automatizado
+- Redução de operações manuais propenso a erros
+
+* Fluxo de Dados
+** Ingestão
+1. O Azure Data Factory conecta ao Azure Open Dataset usando autenticação anônima
+2. Os dados Parquet são copiados para o container "output" no Azure Blob Storage
+3. O processo é configurado para rodar com periodicidade definida (ex: diariamente)
+
+** Transformação
+1. Azure Databricks lê os dados brutos do container "output"
+2. Aplica transformações usando PySpark:
+   - Filtragem por ano mais recente (2023)
+   - Normalização de nomes de colunas
+   - Remoção de valores nulos em campos críticos
+   - Conversão de unidades de temperatura quando necessário
+   - Cálculo de métricas de qualidade
+3. Resultado é gravado no container "output" na pasta "transformed_weather_data"
+
+** Validação
+1. Testes automatizados verificam:
+   - Existência dos arquivos Parquet processados
+   - Conformidade do esquema com o esperado
+   - Ausência de valores nulos em colunas críticas
+   - Filtragem correta de dados por ano
+   - Faixa de temperatura dentro de limites esperados
+
+** Monitoramento
+1. Pipeline "MonitorarPipelines" verifica status de execução dos demais pipelines
+2. Métricas são enviadas ao Application Insights
+3. Alertas são enviados em caso de falhas via webhook
+
+* Processo de CI/CD
+** Setup Inicial
+1. Repositório no GitHub contém todo o código e artefatos do projeto
+2. Configuração do GitHub Actions com secrets para autenticação no Azure
+
+** Workflow de Deployment
+1. Alterações na branch `main` disparam o pipeline de CI/CD
+2. Criação do Resource Group se não existir
+3. Deploy da infraestrutura via template Bicep
+4. Deploy dos Linked Services, Datasets e Pipelines no Data Factory
+5. Validações pós-deploy para garantir que tudo foi criado corretamente
+
+** Monitoramento de Deploy
+1. Cada etapa do workflow é registrada com saídas dos comandos
+2. Falhas são sinalizadas com mensagens de erro claras
+3. Pipeline inclui diagnóstico de problemas comuns
+
+* Boas Práticas Implementadas
+** Segurança
+- Credenciais armazenadas no Key Vault, não hard-coded
+- Princípio do menor privilégio para todas as conexões
+- Autenticação via Managed Identity quando possível
+
+** Monitoramento
+- Métricas de execução e performance
+- Alertas para falhas de pipeline
+- Logging detalhado para troubleshooting
+
+** Qualidade de Dados
+- Validações automáticas em cada step do pipeline
+- Testes automatizados para garantir integridade
+- Métricas de completude e consistência
+
+** Versionamento
+- Todo código é versionado no Git
+- Infraestrutura como código garante consistência entre ambientes
+- Documentação integrada ao repositório
+
+* Manutenção e Evolução
+** Ajustes Necessários para Produção
+- Substituir valores de placeholder nos linked services
+- Implementar rotinas de backup para dados críticos
+- Configurar periodicidade dos pipelines de acordo com requisitos de negócio
+
+** Possíveis Evoluções Futuras
+- Adicionar camada de Data Lake para armazenamento de longo prazo
+- Implementar linhagem de dados para rastreabilidade
+- Desenvolver dashboards para visualização dos dados processados
+- Expandir processamento para outros conjuntos de dados meteorológicos
