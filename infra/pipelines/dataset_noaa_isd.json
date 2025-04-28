@@ -1,0 +1,19 @@
+{
+  "name": "NOAAISDSource",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "AzureBlobStorageNOAAISD",
+      "type": "LinkedServiceReference"
+    },
+    "annotations": [],
+    "type": "Parquet",
+    "typeProperties": {
+      "location": {
+        "type": "AzureBlobStorageLocation",
+        "container": "isdweatherdatacontainer"
+      },
+      "compressionCodec": "snappy"
+    },
+    "schema": []
+  }
+}

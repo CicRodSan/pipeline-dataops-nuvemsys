@@ -1,0 +1,11 @@
+{
+  "name": "AzureBlobStorageNOAAISD",
+  "properties": {
+    "type": "AzureBlobStorage",
+    "typeProperties": {
+      "serviceEndpoint": "https://azureopendatastorage.blob.core.windows.net/",
+      "authenticationType": "Anonymous"
+    },
+    "annotations": []
+  }
+}

@@ -3,11 +3,11 @@
   "properties": {
     "activities": [
       {
-        "name": "CopiarDados",
+        "name": "CopiarDadosNOAA",
         "type": "Copy",
         "inputs": [
           {
-            "referenceName": "FonteDados",
+            "referenceName": "NOAAISDSource",
             "type": "DatasetReference"
           }
         ],
@@ -19,7 +19,13 @@
         ],
         "typeProperties": {
           "source": {
-            "type": "BlobSource"
+            "type": "ParquetSource",
+            "storeSettings": {
+              "type": "AzureBlobStorageReadSettings",
+              "recursive": true,
+              "wildcardFolderPath": "ISDWeather/",
+              "wildcardFileName": "*.parquet"
+            }
           },
           "sink": {
             "type": "BlobSink"

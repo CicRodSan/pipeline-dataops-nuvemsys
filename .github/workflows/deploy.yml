@@ -86,12 +86,34 @@ jobs:
         echo "Deploying DestinoDados Dataset..."
         # Extract properties object for dataset
         properties_content=$(jq -c '.properties' infra/pipelines/dataset_destinodados.json)
-        az datafactory dataset create \
-          --factory-name DataValidationFactoryUnique \
-          --resource-group my-resource-group \
-          --dataset-name DestinoDados \
+        az datafactory dataset create \\
+          --factory-name DataValidationFactoryUnique \\
+          --resource-group my-resource-group \\
+          --dataset-name DestinoDados \\
           --properties "$properties_content" # Pass only the properties object
-    
+
+    # --- Adicionar novos passos aqui ---
+    - name: Deploy NOAA ISD Linked Service
+      run: |
+        echo "Deploying NOAA ISD Linked Service..."
+        properties_content=$(jq -c '.properties' infra/pipelines/linkedservice_noaa_isd.json)
+        az datafactory linked-service create \\
+          --factory-name DataValidationFactoryUnique \\
+          --resource-group my-resource-group \\
+          --linked-service-name AzureBlobStorageNOAAISD \\
+          --properties "$properties_content"
+
+    - name: Deploy NOAA ISD Source Dataset
+      run: |
+        echo "Deploying NOAA ISD Source Dataset..."
+        properties_content=$(jq -c '.properties' infra/pipelines/dataset_noaa_isd.json)
+        az datafactory dataset create \\
+          --factory-name DataValidationFactoryUnique \\
+          --resource-group my-resource-group \\
+          --dataset-name NOAAISDSource \\
+          --properties "$properties_content"
+    # --- Fim dos novos passos ---
+
     # End of new steps
 
     - name: Validate Data Factory Creation
