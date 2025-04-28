@@ -1,66 +1,117 @@
-# Pipeline de DataOps com Azure
+# Pipeline de DataOps com Azure e Azure Dataset
 
-Este projeto demonstra um pipeline de DataOps de ponta a ponta usando tecnologias Azure, incluindo Bicep para Infraestrutura como Código (IaC), Azure Data Factory (ADF) para orquestração de dados, Azure Blob Storage para armazenamento e Azure SQL Database (opcionalmente, para armazenamento estruturado).
+## Visão Geral
 
-O pipeline é implantado automaticamente usando GitHub Actions.
+Este projeto demonstra um pipeline de DataOps completo na Azure, usando dados públicos do Azure Open Datasets (NOAA ISD). O fluxo cobre desde a infraestrutura, ingestão, transformação com Databricks, até testes automatizados de integridade dos dados.
 
-## Arquitetura
+## Componentes do Projeto
 
-(Consulte `docs/arquitetura.drawio` para um diagrama visual)
+- **Infraestrutura (IaC):**  
+  Definida em Bicep (`infra/main.bicep`, `infra/parameters.json`), cria Storage Account, Data Factory, SQL Server, Database e Application Insights.
 
-1.  **Infraestrutura (IaC):** Os arquivos Bicep (`infra/main.bicep` e `infra/parameters.json`) definem os recursos do Azure necessários:
-    *   Resource Group
-    *   Storage Account (para dados brutos e processados)
-    *   Data Factory (para orquestrar o fluxo de dados)
-    *   SQL Server e Database (para dados relacionais, se necessário)
-    *   Application Insights (para monitoramento)
-2.  **Orquestração (ADF):** Os pipelines, datasets e linked services do Data Factory são definidos como JSON em `infra/pipelines/`.
-    *   `linkedservice_blobstorage.json`: Conecta o ADF à conta de armazenamento.
-    *   `dataset_fontedados.json`: Representa os dados de entrada no contêiner `input` do Blob Storage.
-    *   `dataset_destinodados.json`: Representa os dados de saída no contêiner `output` do Blob Storage.
-    *   `ingestao.adf.json`: Pipeline simples que copia dados de `FonteDados` para `DestinoDados`.
-    *   (Outros arquivos como `monitoramento.json`, `transformacao.json` podem conter definições adicionais de pipelines/datasets).
-3.  **Transformação (Opcional):** Um notebook Jupyter (`notebooks/transformacao_dados.ipynb`) pode ser usado para tarefas de transformação de dados mais complexas, potencialmente integrado ao pipeline do ADF.
-4.  **Testes:** Testes de integridade de dados (`tests/test_integridade_dados.py`) podem ser implementados para garantir a qualidade dos dados.
-5.  **CI/CD (GitHub Actions):** O workflow `.github/workflows/deploy.yml` automatiza:
-    *   Login no Azure.
-    *   Criação do Resource Group.
-    *   Implantação da infraestrutura Bicep.
-    *   Implantação dos componentes do Data Factory (Linked Service, Datasets, Pipelines).
-    *   Validação dos recursos criados.
+- **Pipelines e Datasets (ADF):**  
+  Os arquivos em `infra/pipelines/` definem:
+  - Linked Services para Blob Storage (seu e do NOAA)
+  - Datasets de entrada (NOAAISDSource, FonteDados) e saída (DestinoDados)
+  - Pipeline de ingestão (`ingestao.adf.json`): copia dados Parquet do NOAA para seu Blob Storage.
+  - Pipeline de transformação (`transformacao.json`): executa notebook Databricks para processar os dados.
 
-## Como Usar
+- **Notebook de Transformação:**  
+  O notebook `notebooks/transformacao_dados.ipynb` contém instruções para criar um cluster Databricks e código PySpark para processar os dados copiados do Azure Dataset.
 
-1.  **Pré-requisitos:**
-    *   Conta do Azure com uma assinatura ativa.
-    *   Azure CLI instalada.
-    *   Credenciais do Azure configuradas como um segredo `AZURE_CREDENTIALS` no repositório GitHub.
-2.  **Implantação:**
-    *   Faça um push para a branch `main`. O workflow do GitHub Actions será acionado automaticamente, provisionando a infraestrutura e implantando os pipelines.
-3.  **Monitoramento:**
-    *   Acesse o portal do Azure para monitorar os recursos, incluindo o Data Factory e o Application Insights.
+- **Testes Automatizados:**  
+  O arquivo `tests/test_integridade_dados.py` valida a integridade dos dados transformados usando PySpark e pytest, checando esquema, valores nulos, ano dos registros e faixas de temperatura.
 
-## Estrutura do Projeto
+- **CI/CD:**  
+  O workflow `.github/workflows/deploy.yml` automatiza a implantação da infraestrutura e dos pipelines no Azure via GitHub Actions.
 
+## Como funciona o pipeline
+
+1. **Ingestão:**  
+   O pipeline ADF copia dados Parquet do NOAA ISD (armazenados em Azure Open Datasets) para seu Blob Storage, usando autenticação anônima.
+
+2. **Transformação:**  
+   Um notebook Databricks lê os dados do Blob Storage, processa e salva os resultados em outro contêiner.
+
+3. **Validação:**  
+   Testes automatizados garantem a qualidade dos dados transformados.
+
+## Como usar
+
+1. Faça o deploy da infraestrutura com Bicep.
+2. Execute os pipelines do Data Factory para ingestão e transformação.
+3. Rode os testes de integridade para validar os dados processados.
+
+## Estrutura dos arquivos
+
+- `infra/main.bicep`, `infra/parameters.json`: Infraestrutura Azure.
+- `infra/pipelines/`: JSONs de Linked Services, Datasets e Pipelines do ADF.
+- `notebooks/transformacao_dados.ipynb`: Notebook Databricks para transformação.
+- `tests/test_integridade_dados.py`: Testes de integridade dos dados.
+- `.github/workflows/deploy.yml`: CI/CD para deploy automatizado.
+- `docs/`: Documentação e diagrama de arquitetura.
+
+## Exemplos de Uso
+
+### 1. Deploy da Infraestrutura
+
+Execute o deploy da infraestrutura Azure usando a Azure CLI:
+
+```bash
+az deployment group create \
+  --resource-group <nome-do-resource-group> \
+  --template-file infra/main.bicep \
+  --parameters @infra/parameters.json
 ```
-.
-├── .github/workflows/      # Workflows do GitHub Actions (CI/CD)
-│   └── deploy.yml
-├── docs/                   # Documentação (arquitetura, processos)
-├── infra/                  # Infraestrutura como Código (Bicep) e definições do ADF
-│   ├── main.bicep          # Template Bicep principal
-│   ├── parameters.json     # Parâmetros para o template Bicep
-│   └── pipelines/          # Definições JSON do Azure Data Factory
-│       ├── dataset_destinodados.json
-│       ├── dataset_fontedados.json
-│       ├── ingestao.adf.json
-│       ├── linkedservice_blobstorage.json
-│       ├── monitoramento.json
-│       └── transformacao.json
-├── notebooks/              # Notebooks Jupyter para análise/transformação
-│   └── transformacao_dados.ipynb
-├── tests/                  # Testes automatizados
-│   └── test_integridade_dados.py
-├── LICENSE                 # Licença do projeto
-└── README.md               # Este arquivo
+
+### 2. Execução dos Pipelines no Data Factory
+
+Após o deploy, acesse o Azure Data Factory pelo portal e execute os pipelines:
+- **Pipeline de Ingestão:** Copia dados do dataset público NOAA ISD para seu Blob Storage.
+- **Pipeline de Transformação:** Executa o notebook Databricks para processar os dados.
+
+### 3. Execução do Notebook Databricks
+
+No Databricks:
+1. Importe ou sincronize o notebook `notebooks/transformacao_dados.ipynb`.
+2. Crie e selecione um cluster conforme instruções no início do notebook.
+3. Execute as células para processar os dados Parquet copiados pelo pipeline.
+
+### 4. Rodando os Testes de Integridade
+
+Instale as dependências necessárias:
+```bash
+pip install pytest pyspark
 ```
+
+Execute os testes:
+```bash
+pytest tests/test_integridade_dados.py
+```
+
+Os testes validam:
+- Existência dos arquivos Parquet transformados
+- Esquema dos dados
+- Ausência de valores nulos em colunas-chave
+- Ano dos registros
+- Faixa de temperatura
+
+---
+
+## Mais Detalhes
+
+- **Dataset Público:**
+  - O pipeline utiliza o dataset NOAA ISD disponível em Azure Open Datasets, acessado via linked service anônimo.
+  - O dataset é lido em formato Parquet e copiado para seu próprio Blob Storage para processamento.
+
+- **Customização:**
+  - Você pode adaptar os pipelines para outros datasets públicos do Azure, bastando criar novos linked services e datasets.
+  - O notebook pode ser expandido para realizar outras transformações ou análises.
+
+- **CI/CD:**
+  - O deploy automatizado via GitHub Actions está em `.github/workflows/deploy.yml`.
+  - Basta um push na branch `main` para acionar o pipeline de deploy.
+
+- **Documentação:**
+  - Consulte `docs/arquitetura.drawio` para o diagrama da solução.
+  - O arquivo `docs/processo.org` pode ser usado para documentar o fluxo ou decisões do projeto.
